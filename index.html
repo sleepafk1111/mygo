@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>?渡憌? - 擗輒蝟餌絞</title>
+<title>晴灣食堂 - 餐廳系統</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -167,74 +167,74 @@
 </style>
 </head>
 <body>
-  <h1>?渡憌?</h1>
-  <div class="sub">擗輒蝟餌絞嚗?獢?憭?4 鈭綽?</div>
+  <h1>晴灣食堂</h1>
+  <div class="sub">餐廳系統（一桌最多 4 人）</div>
 
   <div class="tabs">
-    <button class="tab-btn active" data-tab="queue">?? <span class="tab-badge" id="badgeQueue">0</span></button>
-    <button class="tab-btn" data-tab="order">暺? <span class="tab-badge" id="badgeOrder">0</span></button>
-    <button class="tab-btn" data-tab="kitchen">撱 <span class="tab-badge" id="badgeKitchen">0</span></button>
+    <button class="tab-btn active" data-tab="queue">候位 <span class="tab-badge" id="badgeQueue">0</span></button>
+    <button class="tab-btn" data-tab="order">點餐 <span class="tab-badge" id="badgeOrder">0</span></button>
+    <button class="tab-btn" data-tab="kitchen">廚房 <span class="tab-badge" id="badgeKitchen">0</span></button>
   </div>
 
-  <!-- ?? -->
+  <!-- 候位 -->
   <div class="tab-panel active" id="panel-queue">
     <div class="card">
       <div class="form-row">
         <div class="field">
-          <label for="name">摰Ｖ犖憪?</label>
-          <input id="name" type="text" placeholder="隢撓?亙??? autocomplete="off">
+          <label for="name">客人姓名</label>
+          <input id="name" type="text" placeholder="請輸入姓名" autocomplete="off">
         </div>
         <div class="field" style="max-width:120px;">
-          <label for="people">鈭箸</label>
+          <label for="people">人數</label>
           <input id="people" type="number" min="1" max="4" value="1">
         </div>
       </div>
       <div style="margin-top:12px;">
-        <button class="btn btn-primary" id="takeBtn">??</button>
+        <button class="btn btn-primary" id="takeBtn">取號</button>
       </div>
       <div class="msg" id="msg"></div>
     </div>
 
     <div class="count" id="count"></div>
 
-    <div class="section-title">?? 獢?嚗征獢?<span id="emptyCount">0</span> 撘蛛?</div>
+    <div class="section-title">🪑 桌況（空桌 <span id="emptyCount">0</span> 張）</div>
     <div class="tables" id="tables"></div>
 
-    <div class="section-title">? 撌脣??/div>
+    <div class="section-title">📣 已叫號</div>
     <ul class="list" id="calledList"></ul>
 
-    <div class="section-title">??蝑葉</div>
+    <div class="section-title">⏳ 等候中</div>
     <ul class="list" id="waitingList"></ul>
 
-    <div class="section-title">?? 撌脤???/div>
+    <div class="section-title">⚠️ 已過號</div>
     <ul class="list" id="skippedList"></ul>
   </div>
 
-  <!-- 暺? -->
+  <!-- 點餐 -->
   <div class="tab-panel" id="panel-order">
-    <div class="section-title">?儭??券?銝剔?獢?嚗?銝銝摰?</div>
+    <div class="section-title">🍽️ 用餐中的桌子（點一下選定）</div>
     <div id="diningTables"></div>
     <div id="selectedTableInfo" class="count"></div>
 
-    <div class="section-title">?? ?</div>
+    <div class="section-title">📋 菜單</div>
     <div id="menu"></div>
 
     <div id="orderSummary"></div>
   </div>
 
-  <!-- 撱 -->
+  <!-- 廚房 -->
   <div class="tab-panel" id="panel-kitchen">
     <div class="kanban">
       <div class="kanban-col">
-        <div class="kanban-head">敺ˊ雿?/div>
+        <div class="kanban-head">待製作</div>
         <div id="colPending"></div>
       </div>
       <div class="kanban-col">
-        <div class="kanban-head">鋆賭?銝?/div>
+        <div class="kanban-head">製作中</div>
         <div id="colCooking"></div>
       </div>
       <div class="kanban-col">
-        <div class="kanban-head">撌脣???/div>
+        <div class="kanban-head">已完成</div>
         <div id="colDone"></div>
       </div>
     </div>
@@ -243,10 +243,10 @@
   <!-- modal for table selection -->
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal">
-      <h2>?豢??亙漣獢?</h2>
+      <h2>選擇入座桌子</h2>
       <div id="modalMsg" class="modal-msg"></div>
       <div id="modalOptions"></div>
-      <button class="btn btn-small close-btn" id="modalClose">??</button>
+      <button class="btn btn-small close-btn" id="modalClose">取消</button>
     </div>
   </div>
 
@@ -277,17 +277,17 @@
   ];
 
   const MENU = [
-    { group: '銝駁?', name: '皛瑁?憌?, price: 45, allergy: '' },
-    { group: '銝駁?', name: '?結暻?, price: 70, allergy: '' },
-    { group: '銝駁?', name: '?爸憌?, price: 120, allergy: '' },
-    { group: '撠?', name: '????, price: 40, allergy: '' },
-    { group: '撠?', name: '皛瑁?', price: 15, allergy: '' },
-    { group: '撠?', name: '?梁?撠?銋?, price: 50, allergy: '?怨?? },
-    { group: '憌脣?', name: '?祉???, price: 30, allergy: '' },
-    { group: '憌脣?', name: '擙桀扒蝝', price: 50, allergy: '' },
+    { group: '主食', name: '滷肉飯', price: 45, allergy: '' },
+    { group: '主食', name: '雞絲麵', price: 70, allergy: '' },
+    { group: '主食', name: '排骨飯', price: 120, allergy: '' },
+    { group: '小菜', name: '燙青菜', price: 40, allergy: '' },
+    { group: '小菜', name: '滷蛋', price: 15, allergy: '' },
+    { group: '小菜', name: '花生小魚乾', price: 50, allergy: '含花生' },
+    { group: '飲品', name: '冬瓜茶', price: 30, allergy: '' },
+    { group: '飲品', name: '鮮奶紅茶', price: 50, allergy: '' },
   ];
 
-  const QUICK_NOTES = ['?梁???', '銝?擐?', '撠厭', '憌臬?銝暺?];
+  const QUICK_NOTES = ['花生過敏', '不要香菜', '少鹽', '飯少一點'];
 
   function load() {
     try {
@@ -311,16 +311,16 @@
         // seed 2 fictional orders
         kitchenOrders.push({
           no: 'O' + String(nextOrderNo).padStart(3,'0'),
-          tableId: 'T3', customerName: '????,
-          items: [{ name: '皛瑁?憌?, price: 45, qty: 2 }, { name: '?梁?撠?銋?, price: 50, qty: 1 }],
-          note: '?梁???', status: 'pending', sentAt: Date.now() - 3*60000
+          tableId: 'T3', customerName: '王小明',
+          items: [{ name: '滷肉飯', price: 45, qty: 2 }, { name: '花生小魚乾', price: 50, qty: 1 }],
+          note: '花生過敏', status: 'pending', sentAt: Date.now() - 3*60000
         });
         nextOrderNo++;
         kitchenOrders.push({
           no: 'O' + String(nextOrderNo).padStart(3,'0'),
-          tableId: 'T5', customerName: '????,
-          items: [{ name: '?爸憌?, price: 120, qty: 1 }, { name: '?祉???, price: 30, qty: 2 }],
-          note: '銝?擐?', status: 'pending', sentAt: Date.now() - 7*60000
+          tableId: 'T5', customerName: '李美玲',
+          items: [{ name: '排骨飯', price: 120, qty: 1 }, { name: '冬瓜茶', price: 30, qty: 2 }],
+          note: '不要香菜', status: 'pending', sentAt: Date.now() - 7*60000
         });
         nextOrderNo++;
         saveKitchen();
@@ -335,9 +335,9 @@
     const anySaved = localStorage.getItem(STORAGE_KEY + '_w') || localStorage.getItem(STORAGE_KEY + '_c') || localStorage.getItem(STORAGE_KEY + '_s');
     if (!anySaved) {
       const seed = [
-        { name: '????, people: 2 },
-        { name: '????, people: 4 },
-        { name: '?喳之??, people: 3 },
+        { name: '王小明', people: 2 },
+        { name: '李美玲', people: 4 },
+        { name: '陳大華', people: 3 },
       ];
       const now = Date.now();
       seed.forEach((s, i) => {
@@ -377,14 +377,14 @@
       if (t.occupied) {
         return `<div class="table-card occupied">
           <div class="table-id">${t.id}</div>
-          <div class="table-cap">?臬? ${t.capacity} 鈭?/div>
-          <div class="table-info">?儭?${escapeHtml(t.customerName)} (${t.people}鈭?</div>
+          <div class="table-cap">可坐 ${t.capacity} 人</div>
+          <div class="table-info">🍽️ ${escapeHtml(t.customerName)} (${t.people}人)</div>
         </div>`;
       }
       return `<div class="table-card empty">
         <div class="table-id">${t.id}</div>
-        <div class="table-cap">?臬? ${t.capacity} 鈭?/div>
-        <div class="table-info">??蝛箸?</div>
+        <div class="table-cap">可坐 ${t.capacity} 人</div>
+        <div class="table-info">✅ 空桌</div>
       </div>`;
     }).join('');
     const emptyCount = tables.filter(t => !t.occupied).length;
@@ -393,7 +393,7 @@
 
   function renderList(listEl, items, type) {
     if (!items.length) {
-      listEl.innerHTML = '<li class="empty">嚗嚗?/li>';
+      listEl.innerHTML = '<li class="empty">（無）</li>';
       return;
     }
     listEl.innerHTML = items.map((item, idx) => {
@@ -401,24 +401,24 @@
       let badge = '';
       let actions = '';
       if (type === 'called') {
-        badge = '<span class="badge badge-called">撌脣??/span>';
-        meta = `<span>鈭箸嚗?{item.people} 鈭?/span><span>?怨?敺?${minsSince(item.calledAt)} ??</span>`;
+        badge = '<span class="badge badge-called">已叫號</span>';
+        meta = `<span>人數：${item.people} 人</span><span>叫號後：${minsSince(item.calledAt)} 分鐘</span>`;
         actions = `
-          <button class="btn btn-small btn-table" data-action="seat" data-group="called" data-idx="${idx}">?亙漣</button>
-          <button class="btn btn-small btn-warn" data-action="skip" data-group="called" data-idx="${idx}">??</button>`;
+          <button class="btn btn-small btn-table" data-action="seat" data-group="called" data-idx="${idx}">入座</button>
+          <button class="btn btn-small btn-warn" data-action="skip" data-group="called" data-idx="${idx}">過號</button>`;
       } else if (type === 'waiting') {
         const ahead = idx;
-        meta = `<span>鈭箸嚗?{item.people} 鈭?/span><span>撌脩?嚗?{minsSince(item.createdAt)} ??</span><span>???嚗?{ahead} 蝯?/span>`;
+        meta = `<span>人數：${item.people} 人</span><span>已等：${minsSince(item.createdAt)} 分鐘</span><span>前面還有：${ahead} 組</span>`;
         actions = `
-          <button class="btn btn-small btn-call" data-action="call" data-group="waiting" data-idx="${idx}">?怨?</button>
-          <button class="btn btn-small btn-table" data-action="seat" data-group="waiting" data-idx="${idx}">?亙漣</button>
-          <button class="btn btn-small btn-warn" data-action="skip" data-group="waiting" data-idx="${idx}">??</button>`;
+          <button class="btn btn-small btn-call" data-action="call" data-group="waiting" data-idx="${idx}">叫號</button>
+          <button class="btn btn-small btn-table" data-action="seat" data-group="waiting" data-idx="${idx}">入座</button>
+          <button class="btn btn-small btn-warn" data-action="skip" data-group="waiting" data-idx="${idx}">過號</button>`;
       } else if (type === 'skipped') {
-        badge = '<span class="badge badge-skipped">撌脤???/span>';
-        meta = `<span>鈭箸嚗?{item.people} 鈭?/span>`;
+        badge = '<span class="badge badge-skipped">已過號</span>';
+        meta = `<span>人數：${item.people} 人</span>`;
         actions = `
-          <button class="btn btn-small btn-back" data-action="back" data-group="skipped" data-idx="${idx}">摰Ｖ犖??鈭?????敺?/button>
-          <button class="btn btn-small btn-table" data-action="seat" data-group="skipped" data-idx="${idx}">?亙漣</button>`;
+          <button class="btn btn-small btn-back" data-action="back" data-group="skipped" data-idx="${idx}">客人回來了，排到隊伍最後</button>
+          <button class="btn btn-small btn-table" data-action="seat" data-group="skipped" data-idx="${idx}">入座</button>`;
       }
       return `
       <li class="item ${type}">
@@ -437,16 +437,16 @@
     const el = document.getElementById('diningTables');
     const occupied = tables.filter(t => t.occupied);
     if (!occupied.length) {
-      el.innerHTML = '<div class="empty">隢??啣??葆摰Ｖ犖?亙漣</div>';
+      el.innerHTML = '<div class="empty">請先到候位頁帶客人入座</div>';
       selectedTableId = null;
       return;
     }
-    el.innerHTML = occupied.map(t => `<button class="btn btn-tablesel ${selectedTableId===t.id?'active':''}" data-action="selectTable" data-table="${t.id}">${t.id}??{escapeHtml(t.customerName)}</button>`).join('');
+    el.innerHTML = occupied.map(t => `<button class="btn btn-tablesel ${selectedTableId===t.id?'active':''}" data-action="selectTable" data-table="${t.id}">${t.id}・${escapeHtml(t.customerName)}</button>`).join('');
   }
 
   function renderMenu() {
     const el = document.getElementById('menu');
-    const groups = ['銝駁?','撠?','憌脣?'];
+    const groups = ['主食','小菜','飲品'];
     el.innerHTML = groups.map(g => {
       const items = MENU.filter(m => m.group === g);
       return `<div class="menu-group">
@@ -454,7 +454,7 @@
         <div class="menu-btns">
           ${items.map(m => `
             <button class="btn btn-menu" data-action="addMenu" data-name="${escapeHtml(m.name)}" data-price="${m.price}">
-              <span>${escapeHtml(m.name)} ${m.allergy ? '<span class="allergy">嚗?+m.allergy+'嚗?/span>' : ''}</span>
+              <span>${escapeHtml(m.name)} ${m.allergy ? '<span class="allergy">（'+m.allergy+'）</span>' : ''}</span>
               <span class="price">NT$${m.price}</span>
             </button>`).join('')}
         </div>
@@ -474,7 +474,7 @@
       return `<div class="order-line">
         <span class="line-name">${escapeHtml(o.name)}</span>
         <div class="line-qty">
-          <button class="btn btn-qty" data-action="decQty" data-table="${t.id}" data-name="${escapeHtml(o.name)}">??/button>
+          <button class="btn btn-qty" data-action="decQty" data-table="${t.id}" data-name="${escapeHtml(o.name)}">−</button>
           <span>${o.qty}</span>
           <button class="btn btn-qty" data-action="incQty" data-table="${t.id}" data-name="${escapeHtml(o.name)}">+</button>
         </div>
@@ -483,24 +483,24 @@
     }).join('');
     const noteVal = t.note || '';
     const quickBtns = QUICK_NOTES.map(n => `<button class="btn btn-note" data-action="addNote" data-table="${t.id}" data-note="${escapeHtml(n)}">${n}</button>`).join('');
-    const hasPeanutItem = cart.some(o => o.name.includes('?梁?'));
+    const hasPeanutItem = cart.some(o => o.name.includes('花生'));
     const noteText = t.note || '';
-    const noteHasAllergy = noteText.includes('?梁?') && noteText.includes('??');
+    const noteHasAllergy = noteText.includes('花生') && noteText.includes('過敏');
     const showWarn = hasPeanutItem && noteHasAllergy;
-    const warnHtml = showWarn ? `<div style="background:#c0392b;color:#fff;font-weight:bold;padding:8px 10px;border-radius:8px;margin:8px 0;">?撐?格??怨??擗?嚗??酉撖思??梁???????摰Ｖ犖蝣箄???/div>` : '';
+    const warnHtml = showWarn ? `<div style="background:#c0392b;color:#fff;font-weight:bold;padding:8px 10px;border-radius:8px;margin:8px 0;">這張單有含花生的餐點，但備註寫了花生過敏。請先跟客人確認。</div>` : '';
     const hasItems = cart.length > 0;
     el.innerHTML = `<div class="order-box">
-      <div class="section-title" style="margin-top:0;">${t.id}??{escapeHtml(t.customerName)} ?閮</div>
-      ${lines || '<div class="empty">撠暺?</div>'}
+      <div class="section-title" style="margin-top:0;">${t.id}・${escapeHtml(t.customerName)} 的新訂單</div>
+      ${lines || '<div class="empty">尚未點餐</div>'}
       ${warnHtml}
-      <div class="order-total">撠?嚗T$${total}</div>
+      <div class="order-total">小計：NT$${total}</div>
       <div style="margin-top:10px;">
-        <label style="font-size:18px;font-weight:bold;">?酉</label>
-        <textarea id="noteInput" data-table="${t.id}" placeholder="?酉">${escapeHtml(noteVal)}</textarea>
+        <label style="font-size:18px;font-weight:bold;">備註</label>
+        <textarea id="noteInput" data-table="${t.id}" placeholder="備註">${escapeHtml(noteVal)}</textarea>
         <div class="note-row">${quickBtns}</div>
       </div>
       <div style="margin-top:12px;">
-        <button class="btn btn-primary" data-action="sendOrder" data-table="${t.id}" ${hasItems?'':'disabled'}>??啣???/button>
+        <button class="btn btn-primary" data-action="sendOrder" data-table="${t.id}" ${hasItems?'':'disabled'}>送單到廚房</button>
       </div>
       <div class="msg" id="orderMsg"></div>
     </div>`;
@@ -510,25 +510,25 @@
     const cols = { pending: document.getElementById('colPending'), cooking: document.getElementById('colCooking'), done: document.getElementById('colDone') };
     Object.values(cols).forEach(c => c.innerHTML = '');
     if (!kitchenOrders.length) {
-      cols.pending.innerHTML = '<div class="empty">?桀??∟???/div>';
+      cols.pending.innerHTML = '<div class="empty">目前無訂單</div>';
       return;
     }
     kitchenOrders.forEach(o => {
       const status = o.status || 'pending';
-      const items = o.items.map(i => `<div>${escapeHtml(i.name)} ? ${i.qty}</div>`).join('');
+      const items = o.items.map(i => `<div>${escapeHtml(i.name)} × ${i.qty}</div>`).join('');
       const mins = minsSince(o.sentAt || o.time);
-      const allergy = (o.note || '').includes('??');
+      const allergy = (o.note || '').includes('過敏');
       const noteHtml = o.note ? (allergy
-        ? `<div class="ko-allergy">??瘜冽?嚗?{escapeHtml(o.note)}</div>`
-        : `<div class="ko-note">?酉嚗?{escapeHtml(o.note)}</div>`) : '';
+        ? `<div class="ko-allergy">過敏注意：${escapeHtml(o.note)}</div>`
+        : `<div class="ko-note">備註：${escapeHtml(o.note)}</div>`) : '';
       let actionBtn = '';
-      if (status === 'pending') actionBtn = `<button class="btn btn-small btn-call" data-action="startCook" data-order="${o.no}">??鋆賭?</button>`;
-      else if (status === 'cooking') actionBtn = `<button class="btn btn-small btn-ok" data-action="finishCook" data-order="${o.no}">?粹?摰?</button>`;
+      if (status === 'pending') actionBtn = `<button class="btn btn-small btn-call" data-action="startCook" data-order="${o.no}">開始製作</button>`;
+      else if (status === 'cooking') actionBtn = `<button class="btn btn-small btn-ok" data-action="finishCook" data-order="${o.no}">出餐完成</button>`;
       const card = `<div class="ko-card">
-        <div class="ko-head">閮 ${o.no}??{o.tableId}??{escapeHtml(o.customerName)}</div>
+        <div class="ko-head">訂單 ${o.no}・${o.tableId}・${escapeHtml(o.customerName)}</div>
         ${noteHtml}
         <div class="ko-items">${items}</div>
-        <div class="ko-time">?敺?${mins} ??</div>
+        <div class="ko-time">送出後 ${mins} 分鐘</div>
         <div class="ko-actions">${actionBtn}</div>
       </div>`;
       cols[status].innerHTML += card;
@@ -538,7 +538,7 @@
   function render() {
     const count = document.getElementById('count');
     const total = waiting.length + called.length + skipped.length;
-    count.textContent = total ? '??蝮質? ' + total + ' 蝯?蝑葉 ' + waiting.length + '?歇?怨? ' + called.length + '?歇?? ' + skipped.length + '嚗? : '';
+    count.textContent = total ? '候位總計 ' + total + ' 組（等候中 ' + waiting.length + '、已叫號 ' + called.length + '、已過號 ' + skipped.length + '）' : '';
     renderTables();
     renderList(document.getElementById('calledList'), called, 'called');
     renderList(document.getElementById('waitingList'), waiting, 'waiting');
@@ -567,11 +567,11 @@
     const msgEl = document.getElementById('modalMsg');
     const optEl = document.getElementById('modalOptions');
     if (suitable.length === 0) {
-      msgEl.textContent = '?桀?瘝???銝?蝛箸?';
+      msgEl.textContent = '目前沒有坐得下的空桌';
       optEl.innerHTML = '';
     } else {
       msgEl.textContent = '';
-      optEl.innerHTML = suitable.map(t => `<button class="btn btn-small btn-table table-option" data-table="${t.id}">${t.id}嚗??${t.capacity} 鈭綽?</button>`).join('');
+      optEl.innerHTML = suitable.map(t => `<button class="btn btn-small btn-table table-option" data-table="${t.id}">${t.id}（可坐 ${t.capacity} 人）</button>`).join('');
     }
     document.getElementById('modalBackdrop').classList.add('show');
   }
@@ -586,7 +586,7 @@
     const msg = document.getElementById('msg');
     const name = nameInput.value.trim();
     if (!name) {
-      msg.textContent = '隢‵摰Ｖ犖憪?';
+      msg.textContent = '請填客人姓名';
       nameInput.focus();
       return;
     }
@@ -626,7 +626,7 @@
     const { group, idx, item } = pendingSeat;
     const t = tables.find(x => x.id === tableId);
     if (!t || t.occupied || t.capacity < item.people) {
-      document.getElementById('modalMsg').textContent = '?桀?瘝???銝?蝛箸?';
+      document.getElementById('modalMsg').textContent = '目前沒有坐得下的空桌';
       return;
     }
     t.occupied = true;
@@ -677,7 +677,7 @@
   function appendNote(tableName, note) {
     const t = tables.find(x => x.id === tableName);
     if (!t) return;
-    t.note = t.note ? (t.note + '?? + note) : note;
+    t.note = t.note ? (t.note + '、' + note) : note;
     saveTables();
     renderOrderSummary();
   }
@@ -700,7 +700,7 @@
     save();
     render();
     const msgEl = document.getElementById('orderMsg');
-    if (msgEl) { msgEl.textContent = '撌脤撱嚗???' + no + '嚗?; msgEl.className = 'msg msg-ok'; }
+    if (msgEl) { msgEl.textContent = '已送到廚房（訂單 ' + no + '）'; msgEl.className = 'msg msg-ok'; }
   }
 
   function startCook(orderNo) {
