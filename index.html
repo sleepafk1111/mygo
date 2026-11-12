@@ -73,6 +73,27 @@
   .btn-menu:active { background: #f5f0e8; }
   .btn-menu .price { color: #d35400; font-weight: bold; }
   .btn-menu .allergy { color: #c0392b; font-weight: bold; font-size: 16px; }
+  .btn-menu.soldout { background: #eee; color: #999; border-color: #bbb; cursor: not-allowed; }
+  .btn-menu.soldout:active { background: #eee; }
+  .menu-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 8px; }
+  .menu-row .btn-menu { flex: 1 1 auto; margin-bottom: 0; }
+  .btn-soldout-toggle { font-size: 14px; padding: 6px 10px; min-height: 44px; background: #888; color: #fff; border-radius: 12px; border: none; cursor: pointer; white-space: nowrap; }
+  .menu-h { display: flex; gap: 10px; align-items: center; width: 100%; }
+  .menu-h img { width: 96px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+  .menu-h .info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .menu-h .info .name { font-size: 20px; font-weight: bold; }
+  .menu-h .info .price { color: #d35400; font-weight: bold; font-size: 18px; }
+  .menu-h .info .allergy { color: #c0392b; font-weight: bold; font-size: 16px; }
+  .menu-h .info .soldout-label { color: #fff; background: #c0392b; font-weight: bold; font-size: 14px; padding: 2px 8px; border-radius: 6px; display: inline-block; width: fit-content; }
+  .menu-v { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 8px; }
+  .menu-v .left { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+  .menu-v { flex-wrap: wrap; }
+  .menu-v .left .name { font-size: 20px; font-weight: bold; }
+  .menu-v .left .meta { font-size: 16px; color: #555; }
+  .menu-v .right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .menu-v .right .price { color: #d35400; font-weight: bold; font-size: 18px; }
+  .menu-v .right .allergy { color: #c0392b; font-weight: bold; font-size: 16px; }
+  .menu-v .right .soldout-label { color: #fff; background: #c0392b; font-weight: bold; font-size: 14px; padding: 2px 8px; border-radius: 6px; }
   .btn-tablesel { background: #2980b9; color: #fff; width: 100%; margin-bottom: 8px; text-align: left; }
   .btn-tablesel.active { background: #1a5276; box-shadow: 0 0 0 3px #f39c12; }
   .btn-qty { font-size: 18px; padding: 6px 12px; min-height: 36px; background: #eee; color: #2b2b2b; }
@@ -277,19 +298,31 @@
   ];
 
   const MENU = [
-    { group: '主食', name: '滷肉飯', price: 45, allergy: '' },
-    { group: '主食', name: '雞絲麵', price: 70, allergy: '' },
-    { group: '主食', name: '排骨飯', price: 120, allergy: '' },
-    { group: '小菜', name: '燙青菜', price: 40, allergy: '' },
-    { group: '小菜', name: '滷蛋', price: 15, allergy: '' },
-    { group: '小菜', name: '花生小魚乾', price: 50, allergy: '含花生' },
-    { group: '飲品', name: '冬瓜茶', price: 30, allergy: '' },
-    { group: '飲品', name: '鮮奶紅茶', price: 50, allergy: '' },
+    { group: '主食', name: '滷肉飯', price: 45, allergy: '', image: 'luroufan.jpg' },
+    { group: '主食', name: '雞絲麵', price: 70, allergy: '', image: 'jisimian.webp' },
+    { group: '主食', name: '排骨飯', price: 120, allergy: '', image: 'paigufan.webp' },
+    { group: '小菜', name: '燙青菜', price: 40, allergy: '', image: 'tangqingcai.webp' },
+    { group: '小菜', name: '滷蛋', price: 15, allergy: '', image: 'ludan.webp' },
+    { group: '小菜', name: '花生小魚乾', price: 50, allergy: '含花生', image: 'huashengxiaoyugan.webp' },
+    { group: '飲品', name: '冬瓜茶', price: 30, allergy: '', image: 'dongguacha.webp' },
+    { group: '飲品', name: '鮮奶紅茶', price: 50, allergy: '', image: 'xiannaihongcha.webp' },
   ];
+  // sold-out state persisted
+  const SOLDOUT_KEY = 'qingwan_soldout_v5';
+  let soldOutMap = {};
+  function loadSoldOut() {
+    try { const s = localStorage.getItem(SOLDOUT_KEY); if (s) soldOutMap = JSON.parse(s); } catch(e) { soldOutMap = {}; }
+    MENU.forEach(m => { if (soldOutMap[m.name] === true) m.soldOut = true; else m.soldOut = false; });
+  }
+  function saveSoldOut() {
+    MENU.forEach(m => { soldOutMap[m.name] = !!m.soldOut; });
+    localStorage.setItem(SOLDOUT_KEY, JSON.stringify(soldOutMap));
+  }
 
   const QUICK_NOTES = ['花生過敏', '不要香菜', '少鹽', '飯少一點'];
 
   function load() {
+    loadSoldOut();
     try {
       const w = localStorage.getItem(STORAGE_KEY + '_w');
       const c = localStorage.getItem(STORAGE_KEY + '_c');
@@ -452,11 +485,47 @@
       return `<div class="menu-group">
         <div class="menu-group-title">${g}</div>
         <div class="menu-btns">
-          ${items.map(m => `
-            <button class="btn btn-menu" data-action="addMenu" data-name="${escapeHtml(m.name)}" data-price="${m.price}">
-              <span>${escapeHtml(m.name)} ${m.allergy ? '<span class="allergy">（'+m.allergy+'）</span>' : ''}</span>
-              <span class="price">NT$${m.price}</span>
-            </button>`).join('')}
+          ${items.map(m => {
+            const soldOut = !!m.soldOut;
+            const soldoutClass = soldOut ? ' soldout' : '';
+            const disabledAttr = soldOut ? 'disabled' : '';
+            const allergyHtml = m.allergy ? `<span class="allergy">（${escapeHtml(m.allergy)}）</span>` : '';
+            const soldoutLabel = soldOut ? `<span class="soldout-label">售完</span>` : '';
+            if (m.image) {
+              // horizontal layout
+              return `<div class="menu-row">
+                <button class="btn btn-menu${soldoutClass}" data-action="addMenu" data-name="${escapeHtml(m.name)}" data-price="${m.price}" ${disabledAttr}>
+                  <div class="menu-h">
+                    <img src="${escapeHtml(m.image)}" alt="${escapeHtml(m.name)}">
+                    <div class="info">
+                      <div class="name">${escapeHtml(m.name)} ${allergyHtml}</div>
+                      <div class="price">NT$${m.price}</div>
+                      ${m.allergy ? `<div class="allergy">${escapeHtml(m.allergy)}</div>` : ''}
+                      ${soldoutLabel}
+                    </div>
+                  </div>
+                </button>
+                <button class="btn btn-soldout-toggle" data-action="toggleSoldOut" data-name="${escapeHtml(m.name)}">${soldOut ? '恢復' : '售完'}</button>
+              </div>`;
+            }
+            // vertical layout (original)
+            return `<div class="menu-row">
+              <button class="btn btn-menu${soldoutClass}" data-action="addMenu" data-name="${escapeHtml(m.name)}" data-price="${m.price}" ${disabledAttr}>
+                <div class="menu-v">
+                  <div class="left">
+                    <div class="name">${escapeHtml(m.name)} ${allergyHtml}</div>
+                    <div class="meta">${m.allergy ? escapeHtml(m.allergy) : ''}</div>
+                  </div>
+                  <div class="right">
+                    <div class="price">NT$${m.price}</div>
+                    ${m.allergy ? `<div class="allergy">${escapeHtml(m.allergy)}</div>` : ''}
+                    ${soldoutLabel}
+                  </div>
+                </div>
+              </button>
+              <button class="btn btn-soldout-toggle" data-action="toggleSoldOut" data-name="${escapeHtml(m.name)}">${soldOut ? '恢復' : '售完'}</button>
+            </div>`;
+          }).join('')}
         </div>
       </div>`;
     }).join('');
@@ -674,6 +743,14 @@
     renderOrderSummary();
   }
 
+  function toggleSoldOut(name) {
+    const m = MENU.find(x => x.name === name);
+    if (!m) return;
+    m.soldOut = !m.soldOut;
+    saveSoldOut();
+    renderMenu();
+  }
+
   function appendNote(tableName, note) {
     const t = tables.find(x => x.id === tableName);
     if (!t) return;
@@ -742,7 +819,8 @@
       else if (action === 'seat') openSeatModal(group, idx);
       else if (action === 'back') backItem(idx);
       else if (action === 'selectTable') { selectedTableId = btn.dataset.table; renderDiningTables(); renderOrderSummary(); }
-      else if (action === 'addMenu') addToCart(selectedTableId, btn.dataset.name, parseInt(btn.dataset.price,10));
+      else if (action === 'addMenu') { if (!btn.disabled) addToCart(selectedTableId, btn.dataset.name, parseInt(btn.dataset.price,10)); }
+      else if (action === 'toggleSoldOut') toggleSoldOut(btn.dataset.name);
       else if (action === 'incQty') changeQty(btn.dataset.table, btn.dataset.name, 1);
       else if (action === 'decQty') changeQty(btn.dataset.table, btn.dataset.name, -1);
       else if (action === 'addNote') appendNote(btn.dataset.table, btn.dataset.note);
