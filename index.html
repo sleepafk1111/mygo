@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>?渡憌? - 擗輒蝟餌絞</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Microsoft JhengHei", "PingFang TC", sans-serif;
+    background: #f5f0e8;
+    color: #2b2b2b;
+    padding: 16px;
+    font-size: 20px;
+    line-height: 1.5;
+  }
+  h1 { font-size: 32px; text-align: center; margin-bottom: 4px; }
+  .sub { text-align: center; font-size: 18px; color: #666; margin-bottom: 16px; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tab-btn {
+    flex: 1; font-size: 20px; padding: 12px; border: none; border-radius: 12px;
+    background: #ddd; cursor: pointer; font-weight: bold; min-height: 52px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .tab-btn.active { background: #d35400; color: #fff; }
+  .tab-badge {
+    background: rgba(0,0,0,.2); color: inherit; border-radius: 999px;
+    font-size: 16px; padding: 2px 10px; min-width: 28px; text-align: center;
+  }
+  .tab-btn.active .tab-badge { background: rgba(255,255,255,.3); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch; }
+  .field { flex: 1 1 140px; display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 18px; font-weight: bold; }
+  .field input, .field textarea {
+    font-size: 22px;
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    width: 100%;
+    font-family: inherit;
+  }
+  .field textarea { min-height: 60px; resize: vertical; }
+  .btn {
+    font-size: 22px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    min-height: 56px;
+  }
+  .btn-primary { background: #d35400; color: #fff; width: 100%; }
+  .btn-primary:active { background: #a04000; }
+  .btn-primary:disabled { background: #bbb; cursor: not-allowed; }
+  .btn-small { font-size: 18px; padding: 10px 14px; min-height: 44px; }
+  .btn-warn { background: #f39c12; color: #fff; }
+  .btn-ok { background: #27ae60; color: #fff; }
+  .btn-call { background: #2980b9; color: #fff; }
+  .btn-back { background: #8e44ad; color: #fff; }
+  .btn-table { background: #16a085; color: #fff; }
+  .btn-menu { background: #fff; color: #2b2b2b; border: 2px solid #ddd; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+  .btn-menu:active { background: #f5f0e8; }
+  .btn-menu .price { color: #d35400; font-weight: bold; }
+  .btn-menu .allergy { color: #c0392b; font-weight: bold; font-size: 16px; }
+  .btn-tablesel { background: #2980b9; color: #fff; width: 100%; margin-bottom: 8px; text-align: left; }
+  .btn-tablesel.active { background: #1a5276; box-shadow: 0 0 0 3px #f39c12; }
+  .btn-qty { font-size: 18px; padding: 6px 12px; min-height: 36px; background: #eee; color: #2b2b2b; }
+  .btn-note { background: #8e44ad; color: #fff; font-size: 16px; padding: 8px 12px; min-height: 40px; }
+  .msg { margin-top: 10px; font-size: 20px; color: #c0392b; font-weight: bold; min-height: 24px; }
+  .msg-ok { color: #27ae60; }
+  .section-title { font-size: 22px; font-weight: bold; margin: 16px 0 8px; color: #d35400; }
+  .list { list-style: none; }
+  .item {
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.06);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .item.called { border-left: 6px solid #2980b9; background: #eaf4fb; }
+  .item.skipped { border-left: 6px solid #f39c12; background: #fef9e7; }
+  .item-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .num { font-size: 28px; font-weight: bold; color: #d35400; }
+  .name { font-size: 24px; font-weight: bold; }
+  .badge { font-size: 16px; padding: 4px 10px; border-radius: 8px; color: #fff; font-weight: bold; }
+  .badge-called { background: #2980b9; }
+  .badge-skipped { background: #f39c12; }
+  .meta { font-size: 18px; color: #555; }
+  .meta span { margin-right: 12px; }
+  .actions { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .empty { text-align: center; color: #888; font-size: 20px; padding: 12px; }
+  .count { text-align: center; font-size: 18px; color: #666; margin-bottom: 10px; }
+
+  .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .table-card {
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.08);
+  }
+  .table-card.empty { background: #e8f8f0; border: 2px solid #27ae60; }
+  .table-card.occupied { background: #fdecea; border: 2px solid #c0392b; }
+  .table-id { font-size: 24px; font-weight: bold; }
+  .table-cap { font-size: 16px; color: #555; }
+  .table-info { font-size: 16px; }
+
+  .menu-group { margin-bottom: 12px; }
+  .menu-group-title { font-size: 20px; font-weight: bold; color: #555; margin-bottom: 6px; }
+  .menu-btns { display: flex; flex-direction: column; gap: 8px; }
+
+  .order-box { background: #fff; border-radius: 12px; padding: 12px; margin-top: 12px; }
+  .order-line { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #ddd; gap: 8px; flex-wrap: wrap; }
+  .order-line .line-name { flex: 1; }
+  .order-line .line-qty { display: flex; align-items: center; gap: 6px; }
+  .order-total { font-weight: bold; font-size: 20px; margin-top: 8px; text-align: right; color: #d35400; }
+  .note-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .kitchen-order { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 10px; border-left: 6px solid #2980b9; }
+  .kitchen-order .ko-head { font-weight: bold; font-size: 20px; margin-bottom: 4px; }
+  .kitchen-order .ko-items { font-size: 18px; }
+  .kitchen-order .ko-note { font-size: 16px; color: #c0392b; margin-top: 4px; }
+
+  .kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 700px) { .kanban { grid-template-columns: 1fr; } }
+  .kanban-col { background: #fff; border-radius: 12px; padding: 10px; min-height: 200px; box-shadow: 0 2px 6px rgba(0,0,0,.06); }
+  .kanban-head { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 10px; color: #d35400; }
+  .ko-card { background: #f5f0e8; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+  .ko-head { font-weight: bold; font-size: 18px; margin-bottom: 4px; }
+  .ko-items { font-size: 16px; }
+  .ko-items div { padding: 2px 0; }
+  .ko-time { font-size: 14px; color: #888; margin-top: 4px; }
+  .ko-allergy { background: #c0392b; color: #fff; font-weight: bold; font-size: 18px; padding: 6px 10px; border-radius: 8px; margin-bottom: 6px; }
+  .ko-note { background: #f9e79f; color: #7d6608; font-size: 16px; padding: 6px 10px; border-radius: 8px; margin-top: 6px; font-weight: bold; }
+  .ko-actions { margin-top: 8px; }
+
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,.5);
+    display: none; align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: #fff; border-radius: 16px; padding: 20px; width: 90%; max-width: 420px;
+    max-height: 80vh; overflow: auto;
+  }
+  .modal h2 { font-size: 24px; margin-bottom: 12px; }
+  .modal .table-option { display: block; width: 100%; margin-bottom: 8px; }
+  .modal .close-btn { background: #888; color: #fff; width: 100%; margin-top: 8px; }
+  .modal-msg { font-size: 18px; color: #c0392b; font-weight: bold; margin: 8px 0; }
+</style>
+</head>
+<body>
+  <h1>?渡憌?</h1>
+  <div class="sub">擗輒蝟餌絞嚗?獢?憭?4 鈭綽?</div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="queue">?? <span class="tab-badge" id="badgeQueue">0</span></button>
+    <button class="tab-btn" data-tab="order">暺? <span class="tab-badge" id="badgeOrder">0</span></button>
+    <button class="tab-btn" data-tab="kitchen">撱 <span class="tab-badge" id="badgeKitchen">0</span></button>
+  </div>
+
+  <!-- ?? -->
+  <div class="tab-panel active" id="panel-queue">
+    <div class="card">
+      <div class="form-row">
+        <div class="field">
+          <label for="name">摰Ｖ犖憪?</label>
+          <input id="name" type="text" placeholder="隢撓?亙??? autocomplete="off">
+        </div>
+        <div class="field" style="max-width:120px;">
+          <label for="people">鈭箸</label>
+          <input id="people" type="number" min="1" max="4" value="1">
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="btn btn-primary" id="takeBtn">??</button>
+      </div>
+      <div class="msg" id="msg"></div>
+    </div>
+
+    <div class="count" id="count"></div>
+
+    <div class="section-title">?? 獢?嚗征獢?<span id="emptyCount">0</span> 撘蛛?</div>
+    <div class="tables" id="tables"></div>
+
+    <div class="section-title">? 撌脣??/div>
+    <ul class="list" id="calledList"></ul>
+
+    <div class="section-title">??蝑葉</div>
+    <ul class="list" id="waitingList"></ul>
+
+    <div class="section-title">?? 撌脤???/div>
+    <ul class="list" id="skippedList"></ul>
+  </div>
+
+  <!-- 暺? -->
+  <div class="tab-panel" id="panel-order">
+    <div class="section-title">?儭??券?銝剔?獢?嚗?銝銝摰?</div>
+    <div id="diningTables"></div>
+    <div id="selectedTableInfo" class="count"></div>
+
+    <div class="section-title">?? ?</div>
+    <div id="menu"></div>
+
+    <div id="orderSummary"></div>
+  </div>
+
+  <!-- 撱 -->
+  <div class="tab-panel" id="panel-kitchen">
+    <div class="kanban">
+      <div class="kanban-col">
+        <div class="kanban-head">敺ˊ雿?/div>
+        <div id="colPending"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-head">鋆賭?銝?/div>
+        <div id="colCooking"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-head">撌脣???/div>
+        <div id="colDone"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- modal for table selection -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <h2>?豢??亙漣獢?</h2>
+      <div id="modalMsg" class="modal-msg"></div>
+      <div id="modalOptions"></div>
+      <button class="btn btn-small close-btn" id="modalClose">??</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'qingwan_queue_v5';
+  const NUM_KEY = 'qingwan_nextnum_v5';
+  const TABLE_KEY = 'qingwan_tables_v5';
+  const KITCHEN_KEY = 'qingwan_kitchen_v5';
+  const ORDERNO_KEY = 'qingwan_orderno_v5';
+
+  let waiting = [];
+  let called = [];
+  let skipped = [];
+  let nextNum = 1;
+  let tables = [];
+  let selectedTableId = null;
+  let kitchenOrders = [];
+  let nextOrderNo = 1;
+
+  const DEFAULT_TABLES = [
+    { id: 'T1', capacity: 2 },
+    { id: 'T2', capacity: 2 },
+    { id: 'T3', capacity: 4 },
+    { id: 'T4', capacity: 4 },
+    { id: 'T5', capacity: 4 },
+    { id: 'T6', capacity: 4 },
+  ];
+
+  const MENU = [
+    { group: '銝駁?', name: '皛瑁?憌?, price: 45, allergy: '' },
+    { group: '銝駁?', name: '?結暻?, price: 70, allergy: '' },
+    { group: '銝駁?', name: '?爸憌?, price: 120, allergy: '' },
+    { group: '撠?', name: '????, price: 40, allergy: '' },
+    { group: '撠?', name: '皛瑁?', price: 15, allergy: '' },
+    { group: '撠?', name: '?梁?撠?銋?, price: 50, allergy: '?怨?? },
+    { group: '憌脣?', name: '?祉???, price: 30, allergy: '' },
+    { group: '憌脣?', name: '擙桀扒蝝', price: 50, allergy: '' },
+  ];
+
+  const QUICK_NOTES = ['?梁???', '銝?擐?', '撠厭', '憌臬?銝暺?];
+
+  function load() {
+    try {
+      const w = localStorage.getItem(STORAGE_KEY + '_w');
+      const c = localStorage.getItem(STORAGE_KEY + '_c');
+      const s = localStorage.getItem(STORAGE_KEY + '_s');
+      const n = localStorage.getItem(NUM_KEY);
+      const t = localStorage.getItem(TABLE_KEY);
+      const k = localStorage.getItem(KITCHEN_KEY);
+      const o = localStorage.getItem(ORDERNO_KEY);
+      if (w) waiting = JSON.parse(w);
+      if (c) called = JSON.parse(c);
+      if (s) skipped = JSON.parse(s);
+      if (n) nextNum = parseInt(n, 10) || 1;
+      if (t) tables = JSON.parse(t);
+      if (k) kitchenOrders = JSON.parse(k);
+      if (o) nextOrderNo = parseInt(o, 10) || 1;
+      // migrate status
+      kitchenOrders.forEach(o => { if (!o.status) o.status = 'pending'; if (!o.sentAt) o.sentAt = o.time || Date.now(); });
+      if (kitchenOrders.length === 0) {
+        // seed 2 fictional orders
+        kitchenOrders.push({
+          no: 'O' + String(nextOrderNo).padStart(3,'0'),
+          tableId: 'T3', customerName: '????,
+          items: [{ name: '皛瑁?憌?, price: 45, qty: 2 }, { name: '?梁?撠?銋?, price: 50, qty: 1 }],
+          note: '?梁???', status: 'pending', sentAt: Date.now() - 3*60000
+        });
+        nextOrderNo++;
+        kitchenOrders.push({
+          no: 'O' + String(nextOrderNo).padStart(3,'0'),
+          tableId: 'T5', customerName: '????,
+          items: [{ name: '?爸憌?, price: 120, qty: 1 }, { name: '?祉???, price: 30, qty: 2 }],
+          note: '銝?擐?', status: 'pending', sentAt: Date.now() - 7*60000
+        });
+        nextOrderNo++;
+        saveKitchen();
+      }
+    } catch(e) { waiting=[]; called=[]; skipped=[]; nextNum=1; tables=[]; kitchenOrders=[]; nextOrderNo=1; }
+    if (!tables || tables.length === 0) {
+      tables = DEFAULT_TABLES.map(t => ({ id: t.id, capacity: t.capacity, occupied: false, customerName: '', people: 0, seatedAt: null, cart: [], note: '' }));
+      saveTables();
+    } else {
+      tables.forEach(t => { if (!t.cart) t.cart = []; if (t.note === undefined) t.note = ''; });
+    }
+    const anySaved = localStorage.getItem(STORAGE_KEY + '_w') || localStorage.getItem(STORAGE_KEY + '_c') || localStorage.getItem(STORAGE_KEY + '_s');
+    if (!anySaved) {
+      const seed = [
+        { name: '????, people: 2 },
+        { name: '????, people: 4 },
+        { name: '?喳之??, people: 3 },
+      ];
+      const now = Date.now();
+      seed.forEach((s, i) => {
+        waiting.push({
+          number: 'A' + String(nextNum + i).padStart(3,'0'),
+          name: s.name,
+          people: s.people,
+          createdAt: now - (i+1)*5*60000
+        });
+      });
+      nextNum += seed.length;
+      saveQueue();
+    }
+  }
+
+  function saveQueue() {
+    localStorage.setItem(STORAGE_KEY + '_w', JSON.stringify(waiting));
+    localStorage.setItem(STORAGE_KEY + '_c', JSON.stringify(called));
+    localStorage.setItem(STORAGE_KEY + '_s', JSON.stringify(skipped));
+    localStorage.setItem(NUM_KEY, String(nextNum));
+  }
+  function saveTables() {
+    localStorage.setItem(TABLE_KEY, JSON.stringify(tables));
+  }
+  function saveKitchen() {
+    localStorage.setItem(KITCHEN_KEY, JSON.stringify(kitchenOrders));
+    localStorage.setItem(ORDERNO_KEY, String(nextOrderNo));
+  }
+  function save() { saveQueue(); saveTables(); saveKitchen(); }
+
+  function minsSince(ts) { return Math.max(0, Math.floor((Date.now() - ts) / 60000)); }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function renderTables() {
+    const el = document.getElementById('tables');
+    el.innerHTML = tables.map(t => {
+      if (t.occupied) {
+        return `<div class="table-card occupied">
+          <div class="table-id">${t.id}</div>
+          <div class="table-cap">?臬? ${t.capacity} 鈭?/div>
+          <div class="table-info">?儭?${escapeHtml(t.customerName)} (${t.people}鈭?</div>
+        </div>`;
+      }
+      return `<div class="table-card empty">
+        <div class="table-id">${t.id}</div>
+        <div class="table-cap">?臬? ${t.capacity} 鈭?/div>
+        <div class="table-info">??蝛箸?</div>
+      </div>`;
+    }).join('');
+    const emptyCount = tables.filter(t => !t.occupied).length;
+    document.getElementById('emptyCount').textContent = emptyCount;
+  }
+
+  function renderList(listEl, items, type) {
+    if (!items.length) {
+      listEl.innerHTML = '<li class="empty">嚗嚗?/li>';
+      return;
+    }
+    listEl.innerHTML = items.map((item, idx) => {
+      let meta = '';
+      let badge = '';
+      let actions = '';
+      if (type === 'called') {
+        badge = '<span class="badge badge-called">撌脣??/span>';
+        meta = `<span>鈭箸嚗?{item.people} 鈭?/span><span>?怨?敺?${minsSince(item.calledAt)} ??</span>`;
+        actions = `
+          <button class="btn btn-small btn-table" data-action="seat" data-group="called" data-idx="${idx}">?亙漣</button>
+          <button class="btn btn-small btn-warn" data-action="skip" data-group="called" data-idx="${idx}">??</button>`;
+      } else if (type === 'waiting') {
+        const ahead = idx;
+        meta = `<span>鈭箸嚗?{item.people} 鈭?/span><span>撌脩?嚗?{minsSince(item.createdAt)} ??</span><span>???嚗?{ahead} 蝯?/span>`;
+        actions = `
+          <button class="btn btn-small btn-call" data-action="call" data-group="waiting" data-idx="${idx}">?怨?</button>
+          <button class="btn btn-small btn-table" data-action="seat" data-group="waiting" data-idx="${idx}">?亙漣</button>
+          <button class="btn btn-small btn-warn" data-action="skip" data-group="waiting" data-idx="${idx}">??</button>`;
+      } else if (type === 'skipped') {
+        badge = '<span class="badge badge-skipped">撌脤???/span>';
+        meta = `<span>鈭箸嚗?{item.people} 鈭?/span>`;
+        actions = `
+          <button class="btn btn-small btn-back" data-action="back" data-group="skipped" data-idx="${idx}">摰Ｖ犖??鈭?????敺?/button>
+          <button class="btn btn-small btn-table" data-action="seat" data-group="skipped" data-idx="${idx}">?亙漣</button>`;
+      }
+      return `
+      <li class="item ${type}">
+        <div class="item-head">
+          <span class="num">${item.number}</span>
+          <span class="name">${escapeHtml(item.name)}</span>
+          ${badge}
+        </div>
+        <div class="meta">${meta}</div>
+        <div class="actions">${actions}</div>
+      </li>`;
+    }).join('');
+  }
+
+  function renderDiningTables() {
+    const el = document.getElementById('diningTables');
+    const occupied = tables.filter(t => t.occupied);
+    if (!occupied.length) {
+      el.innerHTML = '<div class="empty">隢??啣??葆摰Ｖ犖?亙漣</div>';
+      selectedTableId = null;
+      return;
+    }
+    el.innerHTML = occupied.map(t => `<button class="btn btn-tablesel ${selectedTableId===t.id?'active':''}" data-action="selectTable" data-table="${t.id}">${t.id}??{escapeHtml(t.customerName)}</button>`).join('');
+  }
+
+  function renderMenu() {
+    const el = document.getElementById('menu');
+    const groups = ['銝駁?','撠?','憌脣?'];
+    el.innerHTML = groups.map(g => {
+      const items = MENU.filter(m => m.group === g);
+      return `<div class="menu-group">
+        <div class="menu-group-title">${g}</div>
+        <div class="menu-btns">
+          ${items.map(m => `
+            <button class="btn btn-menu" data-action="addMenu" data-name="${escapeHtml(m.name)}" data-price="${m.price}">
+              <span>${escapeHtml(m.name)} ${m.allergy ? '<span class="allergy">嚗?+m.allergy+'嚗?/span>' : ''}</span>
+              <span class="price">NT$${m.price}</span>
+            </button>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderOrderSummary() {
+    const el = document.getElementById('orderSummary');
+    if (!selectedTableId) { el.innerHTML = ''; return; }
+    const t = tables.find(x => x.id === selectedTableId);
+    if (!t) { el.innerHTML = ''; return; }
+    const cart = t.cart || [];
+    let total = 0;
+    const lines = cart.map((o,i) => {
+      total += o.price * o.qty;
+      return `<div class="order-line">
+        <span class="line-name">${escapeHtml(o.name)}</span>
+        <div class="line-qty">
+          <button class="btn btn-qty" data-action="decQty" data-table="${t.id}" data-name="${escapeHtml(o.name)}">??/button>
+          <span>${o.qty}</span>
+          <button class="btn btn-qty" data-action="incQty" data-table="${t.id}" data-name="${escapeHtml(o.name)}">+</button>
+        </div>
+        <span>NT$${o.price*o.qty}</span>
+      </div>`;
+    }).join('');
+    const noteVal = t.note || '';
+    const quickBtns = QUICK_NOTES.map(n => `<button class="btn btn-note" data-action="addNote" data-table="${t.id}" data-note="${escapeHtml(n)}">${n}</button>`).join('');
+    const hasPeanutItem = cart.some(o => o.name.includes('?梁?'));
+    const noteText = t.note || '';
+    const noteHasAllergy = noteText.includes('?梁?') && noteText.includes('??');
+    const showWarn = hasPeanutItem && noteHasAllergy;
+    const warnHtml = showWarn ? `<div style="background:#c0392b;color:#fff;font-weight:bold;padding:8px 10px;border-radius:8px;margin:8px 0;">?撐?格??怨??擗?嚗??酉撖思??梁???????摰Ｖ犖蝣箄???/div>` : '';
+    const hasItems = cart.length > 0;
+    el.innerHTML = `<div class="order-box">
+      <div class="section-title" style="margin-top:0;">${t.id}??{escapeHtml(t.customerName)} ?閮</div>
+      ${lines || '<div class="empty">撠暺?</div>'}
+      ${warnHtml}
+      <div class="order-total">撠?嚗T$${total}</div>
+      <div style="margin-top:10px;">
+        <label style="font-size:18px;font-weight:bold;">?酉</label>
+        <textarea id="noteInput" data-table="${t.id}" placeholder="?酉">${escapeHtml(noteVal)}</textarea>
+        <div class="note-row">${quickBtns}</div>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="btn btn-primary" data-action="sendOrder" data-table="${t.id}" ${hasItems?'':'disabled'}>??啣???/button>
+      </div>
+      <div class="msg" id="orderMsg"></div>
+    </div>`;
+  }
+
+  function renderKitchen() {
+    const cols = { pending: document.getElementById('colPending'), cooking: document.getElementById('colCooking'), done: document.getElementById('colDone') };
+    Object.values(cols).forEach(c => c.innerHTML = '');
+    if (!kitchenOrders.length) {
+      cols.pending.innerHTML = '<div class="empty">?桀??∟???/div>';
+      return;
+    }
+    kitchenOrders.forEach(o => {
+      const status = o.status || 'pending';
+      const items = o.items.map(i => `<div>${escapeHtml(i.name)} ? ${i.qty}</div>`).join('');
+      const mins = minsSince(o.sentAt || o.time);
+      const allergy = (o.note || '').includes('??');
+      const noteHtml = o.note ? (allergy
+        ? `<div class="ko-allergy">??瘜冽?嚗?{escapeHtml(o.note)}</div>`
+        : `<div class="ko-note">?酉嚗?{escapeHtml(o.note)}</div>`) : '';
+      let actionBtn = '';
+      if (status === 'pending') actionBtn = `<button class="btn btn-small btn-call" data-action="startCook" data-order="${o.no}">??鋆賭?</button>`;
+      else if (status === 'cooking') actionBtn = `<button class="btn btn-small btn-ok" data-action="finishCook" data-order="${o.no}">?粹?摰?</button>`;
+      const card = `<div class="ko-card">
+        <div class="ko-head">閮 ${o.no}??{o.tableId}??{escapeHtml(o.customerName)}</div>
+        ${noteHtml}
+        <div class="ko-items">${items}</div>
+        <div class="ko-time">?敺?${mins} ??</div>
+        <div class="ko-actions">${actionBtn}</div>
+      </div>`;
+      cols[status].innerHTML += card;
+    });
+  }
+
+  function render() {
+    const count = document.getElementById('count');
+    const total = waiting.length + called.length + skipped.length;
+    count.textContent = total ? '??蝮質? ' + total + ' 蝯?蝑葉 ' + waiting.length + '?歇?怨? ' + called.length + '?歇?? ' + skipped.length + '嚗? : '';
+    renderTables();
+    renderList(document.getElementById('calledList'), called, 'called');
+    renderList(document.getElementById('waitingList'), waiting, 'waiting');
+    renderList(document.getElementById('skippedList'), skipped, 'skipped');
+
+    document.getElementById('badgeQueue').textContent = total;
+    const occupiedCount = tables.filter(t => t.occupied).length;
+    document.getElementById('badgeOrder').textContent = occupiedCount;
+    const unfinished = kitchenOrders.filter(o => o.status !== 'done').length;
+    document.getElementById('badgeKitchen').textContent = unfinished;
+
+    renderDiningTables();
+    renderMenu();
+    renderOrderSummary();
+    renderKitchen();
+  }
+
+  // modal state
+  let pendingSeat = null;
+  function openSeatModal(group, idx) {
+    const list = group === 'waiting' ? waiting : group === 'called' ? called : skipped;
+    const item = list[idx];
+    if (!item) return;
+    const suitable = tables.filter(t => !t.occupied && t.capacity >= item.people);
+    pendingSeat = { group, idx, item };
+    const msgEl = document.getElementById('modalMsg');
+    const optEl = document.getElementById('modalOptions');
+    if (suitable.length === 0) {
+      msgEl.textContent = '?桀?瘝???銝?蝛箸?';
+      optEl.innerHTML = '';
+    } else {
+      msgEl.textContent = '';
+      optEl.innerHTML = suitable.map(t => `<button class="btn btn-small btn-table table-option" data-table="${t.id}">${t.id}嚗??${t.capacity} 鈭綽?</button>`).join('');
+    }
+    document.getElementById('modalBackdrop').classList.add('show');
+  }
+  function closeSeatModal() {
+    document.getElementById('modalBackdrop').classList.remove('show');
+    pendingSeat = null;
+  }
+
+  function takeNumber() {
+    const nameInput = document.getElementById('name');
+    const peopleInput = document.getElementById('people');
+    const msg = document.getElementById('msg');
+    const name = nameInput.value.trim();
+    if (!name) {
+      msg.textContent = '隢‵摰Ｖ犖憪?';
+      nameInput.focus();
+      return;
+    }
+    msg.textContent = '';
+    let people = parseInt(peopleInput.value, 10);
+    if (isNaN(people) || people < 1) people = 1;
+    if (people > 4) people = 4;
+    const number = 'A' + String(nextNum).padStart(3,'0');
+    nextNum++;
+    waiting.push({ number, name, people, createdAt: Date.now() });
+    save();
+    render();
+    nameInput.value = '';
+    peopleInput.value = '1';
+    nameInput.focus();
+  }
+
+  function callItem(idx) {
+    const item = waiting.splice(idx, 1)[0];
+    item.calledAt = Date.now();
+    called.unshift(item);
+    save();
+    render();
+  }
+
+  function skipItem(group, idx) {
+    let item;
+    if (group === 'waiting') item = waiting.splice(idx,1)[0];
+    else if (group === 'called') item = called.splice(idx,1)[0];
+    skipped.push(item);
+    save();
+    render();
+  }
+
+  function seatConfirm(tableId) {
+    if (!pendingSeat) return;
+    const { group, idx, item } = pendingSeat;
+    const t = tables.find(x => x.id === tableId);
+    if (!t || t.occupied || t.capacity < item.people) {
+      document.getElementById('modalMsg').textContent = '?桀?瘝???銝?蝛箸?';
+      return;
+    }
+    t.occupied = true;
+    t.customerName = item.name;
+    t.people = item.people;
+    t.seatedAt = Date.now();
+    t.cart = [];
+    t.note = '';
+    if (group === 'waiting') waiting.splice(idx,1);
+    else if (group === 'called') called.splice(idx,1);
+    else if (group === 'skipped') skipped.splice(idx,1);
+    save();
+    render();
+    closeSeatModal();
+  }
+
+  function backItem(idx) {
+    const item = skipped.splice(idx,1)[0];
+    delete item.calledAt;
+    item.createdAt = Date.now();
+    waiting.push(item);
+    save();
+    render();
+  }
+
+  function addToCart(tableName, name, price) {
+    const t = tables.find(x => x.id === tableName);
+    if (!t) return;
+    if (!t.cart) t.cart = [];
+    const ex = t.cart.find(o => o.name === name);
+    if (ex) ex.qty += 1;
+    else t.cart.push({ name, price, qty: 1 });
+    saveTables();
+    renderOrderSummary();
+  }
+
+  function changeQty(tableName, name, delta) {
+    const t = tables.find(x => x.id === tableName);
+    if (!t || !t.cart) return;
+    const ex = t.cart.find(o => o.name === name);
+    if (!ex) return;
+    ex.qty += delta;
+    if (ex.qty <= 0) t.cart = t.cart.filter(o => o.name !== name);
+    saveTables();
+    renderOrderSummary();
+  }
+
+  function appendNote(tableName, note) {
+    const t = tables.find(x => x.id === tableName);
+    if (!t) return;
+    t.note = t.note ? (t.note + '?? + note) : note;
+    saveTables();
+    renderOrderSummary();
+  }
+
+  function sendOrder(tableName) {
+    const t = tables.find(x => x.id === tableName);
+    if (!t || !t.cart || t.cart.length === 0) return;
+    const no = 'O' + String(nextOrderNo).padStart(3,'0');
+    nextOrderNo++;
+    kitchenOrders.push({
+      no, tableId: t.id, customerName: t.customerName,
+      items: t.cart.map(o => ({ name: o.name, price: o.price, qty: o.qty })),
+      note: t.note || '',
+      status: 'pending',
+      sentAt: Date.now(),
+      time: Date.now()
+    });
+    t.cart = [];
+    t.note = '';
+    save();
+    render();
+    const msgEl = document.getElementById('orderMsg');
+    if (msgEl) { msgEl.textContent = '撌脤撱嚗???' + no + '嚗?; msgEl.className = 'msg msg-ok'; }
+  }
+
+  function startCook(orderNo) {
+    const o = kitchenOrders.find(x => x.no === orderNo);
+    if (o) { o.status = 'cooking'; saveKitchen(); render(); }
+  }
+  function finishCook(orderNo) {
+    const o = kitchenOrders.find(x => x.no === orderNo);
+    if (o) { o.status = 'done'; saveKitchen(); render(); }
+  }
+
+  // tabs
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
+  }
+
+  document.getElementById('takeBtn').addEventListener('click', takeNumber);
+  document.getElementById('name').addEventListener('keydown', e => { if (e.key === 'Enter') takeNumber(); });
+
+  // note textarea sync
+  document.addEventListener('input', e => {
+    if (e.target && e.target.id === 'noteInput') {
+      const t = tables.find(x => x.id === e.target.dataset.table);
+      if (t) { t.note = e.target.value; saveTables(); }
+    }
+  });
+
+  document.addEventListener('click', e => {
+    const tabBtn = e.target.closest('.tab-btn');
+    if (tabBtn) { switchTab(tabBtn.dataset.tab); return; }
+    const btn = e.target.closest('button[data-action]');
+    if (btn) {
+      const idx = parseInt(btn.dataset.idx, 10);
+      const group = btn.dataset.group;
+      const action = btn.dataset.action;
+      if (action === 'call') callItem(idx);
+      else if (action === 'skip') skipItem(group, idx);
+      else if (action === 'seat') openSeatModal(group, idx);
+      else if (action === 'back') backItem(idx);
+      else if (action === 'selectTable') { selectedTableId = btn.dataset.table; renderDiningTables(); renderOrderSummary(); }
+      else if (action === 'addMenu') addToCart(selectedTableId, btn.dataset.name, parseInt(btn.dataset.price,10));
+      else if (action === 'incQty') changeQty(btn.dataset.table, btn.dataset.name, 1);
+      else if (action === 'decQty') changeQty(btn.dataset.table, btn.dataset.name, -1);
+      else if (action === 'addNote') appendNote(btn.dataset.table, btn.dataset.note);
+      else if (action === 'sendOrder') sendOrder(btn.dataset.table);
+      else if (action === 'startCook') startCook(btn.dataset.order);
+      else if (action === 'finishCook') finishCook(btn.dataset.order);
+      return;
+    }
+    const topt = e.target.closest('button[data-table]');
+    if (topt) seatConfirm(topt.dataset.table);
+  });
+  document.getElementById('modalClose').addEventListener('click', closeSeatModal);
+  document.getElementById('modalBackdrop').addEventListener('click', e => {
+    if (e.target.id === 'modalBackdrop') closeSeatModal();
+  });
+
+  load();
+  render();
+  setInterval(render, 30000);
+})();
+</script>
+</body>
+</html>
